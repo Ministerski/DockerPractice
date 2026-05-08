@@ -32,7 +32,7 @@
 
 **Финальный дашборд умного дома:**
 
-![Grafana Dashboard](assets/images/pochemunerabotaet.jpg)
+![Grafana Dashboard](assets/images/pochemunerabotaet.png)
 
 ---
 
