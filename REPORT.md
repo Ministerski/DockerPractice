@@ -32,7 +32,7 @@
 
 **Финальный дашборд умного дома:**
 
-![Grafana Dashboard]( assets/images/iotscreen%20(6).jpg)
+![Grafana Dashboard](assets/images/pochemunerabotaet.jpg)
 
 ---
 
