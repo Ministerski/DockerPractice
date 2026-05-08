@@ -1,24 +1,62 @@
-version: "3"
+version: '3.3'
 
 services:
-  temp_sensor:
-    image: antonaleks/data-simulator
+  # Датчик 1 (Температура)
+  sensor_temp_1:
+    build: .
     environment:
-      - SIM_HOST=192.168.1.1
-      - SIM_NAME=TIRCAHL24
-      - SIM_PERIOD=5
+      - SIM_HOST=192.168.5.1
       - SIM_TYPE=temperature
-  pressure_sensor:
-    image: antonaleks/data-simulator
+      - SIM_NAME=temp_living_room
+      - SIM_PERIOD=5
+    restart: always
+
+  # Датчик 2 (Температура)
+  sensor_temp_2:
+    build: .
     environment:
-      - SIM_HOST=192.168.1.1
-      - SIM_NAME=PIRCAHL11
-      - SIM_PERIOD=10
+      - SIM_HOST=192.168.5.1
+      - SIM_TYPE=temperature
+      - SIM_NAME=temp_kitchen
+      - SIM_PERIOD=8
+    restart: always
+
+  # Датчик 3 (Давление)
+  sensor_pressure_1:
+    build: .
+    environment:
+      - SIM_HOST=192.168.5.1
       - SIM_TYPE=pressure
-  current_sensor:
-    image: antonaleks/data-simulator
+      - SIM_NAME=pressure_boiler
+      - SIM_PERIOD=10
+    restart: always
+
+  # Датчик 4 (Ток)
+  sensor_current_1:
+    build: .
     environment:
-      - SIM_HOST=192.168.1.1
-      - SIM_NAME=A0_CURRENT
-      - SIM_PERIOD=1
+      - SIM_HOST=192.168.5.1
       - SIM_TYPE=current
+      - SIM_NAME=current_main
+      - SIM_PERIOD=4
+    restart: always
+
+  # Датчик 5 (Напряжение фазы А)
+  sensor_voltage_1:
+    build: .
+    environment:
+      - SIM_HOST=192.168.5.1
+      - SIM_TYPE=voltage
+      - SIM_NAME=voltage_phase_a
+      - SIM_PERIOD=6
+    restart: always
+
+  # Датчик 6 (Напряжение фазы В)
+  sensor_voltage_2:
+    build: .
+    environment:
+      - SIM_HOST=192.168.5.1
+      - SIM_TYPE=voltage
+      - SIM_NAME=voltage_phase_b
+      - SIM_PERIOD=7
+    restart: always

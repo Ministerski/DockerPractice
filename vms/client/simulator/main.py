@@ -1,27 +1,82 @@
-import paho.mqtt.client as paho
-from os import environ
+import os
 import time
-
-from entity.sensor import *
-
-broker = "localhost" if "SIM_HOST" not in environ.keys() else environ["SIM_HOST"]
-port = 1883 if "SIM_PORT" not in environ.keys() else int(environ["SIM_PORT"])
-name = "sensor" if "SIM_NAME" not in environ.keys() else environ["SIM_NAME"]
-period = 1 if "SIM_PERIOD" not in environ.keys() else int(environ["SIM_PERIOD"])
-type_sim = "temperature" if "SIM_TYPE" not in environ.keys() else environ["SIM_TYPE"]
-sensors = {"temperature": Temperature, "pressure": Pressure, "current": Current}
+import random
+import json
+import paho.mqtt.client as mqtt
 
 
-def on_publish(client, userdata, result):  # create function for callback
-    print(f"data published {userdata}")
-    pass
+MQTT_HOST = os.getenv('SIM_HOST', '192.168.5.1') # IP брокера по умолчанию
+MQTT_PORT = int(os.getenv('SIM_PORT', 1883))
+SENSOR_TYPE = os.getenv('SIM_TYPE', 'temperature')
+SENSOR_NAME = os.getenv('SIM_NAME', 'sensor_1')
+INTERVAL = int(os.getenv('SIM_PERIOD', 5))
 
+# Базовый класс
+class Sensor:
+    def __init__(self, name):
+        self.name = name
+    
+    def get_value(self):
+        pass
 
-sensor = sensors[type_sim](name=name)
-client1 = paho.Client(sensor.name)  # create client object
-client1.on_publish = on_publish  # assign function to callback
-client1.connect(broker, port)  # establish connection
-while True:
-    sensor.generate_new_value()
-    ret = client1.publish("sensors/" + sensor.type + "/" + sensor.name, sensor.get_data())  # publish
-    time.sleep(period)
+# 4 датчика
+class TemperatureSensor(Sensor):
+    def get_value(self):
+        #(Август = 8)
+        return round(random.uniform(2.0, 4.0) * 8.0, 2)
+
+class PressureSensor(Sensor):
+    def get_value(self):
+        # Прибавляем 8 к базовому давлению
+        return round(random.uniform(740.0, 760.0) + 8.0, 2)
+
+class CurrentSensor(Sensor):
+    def get_value(self):
+        return round(random.uniform(1.0, 5.0) * 8.0, 2)
+
+class VoltageSensor(Sensor):
+    def get_value(self):
+        return round(random.uniform(210.0, 230.0) + 8.0, 2)
+
+def main():
+    # Инициализация нужного типа датчика
+    if SENSOR_TYPE == 'temperature':
+        sensor = TemperatureSensor(SENSOR_NAME)
+    elif SENSOR_TYPE == 'pressure':
+        sensor = PressureSensor(SENSOR_NAME)
+    elif SENSOR_TYPE == 'current':
+        sensor = CurrentSensor(SENSOR_NAME)
+    elif SENSOR_TYPE == 'voltage':
+        sensor = VoltageSensor(SENSOR_NAME)
+    else:
+        sensor = Sensor(SENSOR_NAME)
+
+    # Настройка MQTT клиента
+    client = mqtt.Client(client_id=SENSOR_NAME)
+    
+    while True:
+        try:
+            client.connect(MQTT_HOST, MQTT_PORT, 60)
+            print(f"Connected to Broker at {MQTT_HOST}:{MQTT_PORT}")
+            break
+        except Exception as e:
+            print(f"Connection failed. Retrying in 5 sec...")
+            time.sleep(5)
+
+    client.loop_start()
+
+    # Бесконечный цикл генерации и отправки данных
+    while True:
+        val = sensor.get_value()
+        
+        # Доп. задание: JSON формат топика
+        topic = f"/sensor/{SENSOR_TYPE}"
+        payload = json.dumps({"name": SENSOR_NAME, "value": val})
+        
+        client.publish(topic, payload)
+        print(f"Published: {topic} -> {payload}")
+        
+        time.sleep(INTERVAL)
+
+if __name__ == '__main__':
+    main()
