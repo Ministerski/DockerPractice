@@ -31,7 +31,8 @@
 Был создан дашборд, который автоматически подключается к базе данных InfluxDB (через механизм Provisioning) и отрисовывает графики со всех 6 датчиков в реальном времени.
 
 **Финальный дашборд умного дома:**
-![Grafana Dashboard](assets/images/iotscreen%20(6).jpg)
+
+![Grafana Dashboard]( assets/images/iotscreen%20(6).jpg)
 
 ---
 
